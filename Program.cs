@@ -1,14 +1,16 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using LoginAPI.Data;
 using LoginAPI.Services;
 using LoginAPI.Models;
 using Microsoft.OpenApi;
+using LoginAPI.Utilities;
+using LoginAPI.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// comments at the bottom.
+// comments at the bottom 
 builder.Services.AddControllers();
 builder.Services.AddScoped<FileUserRepository>();
 builder.Services.AddScoped<AuthenticationService>();
@@ -60,6 +62,9 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddDbContext<ApplicationDbContext>(options => 
+options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 var app = builder.Build();
 
 app.UseHttpsRedirection();
@@ -80,11 +85,6 @@ app.Run();
 
 
 /*
- when running the application, the chrome pop up will not display frontend 
-the URL should be https://localhost:7255/swagger
-add /swagger at the end.
-
-there are a few console write statements to check JWT generation.
-as of now, Authorize is not allowing access, likely due to difference in key signing. 
-
+updated to using postman which resolves authentication issues. 
+integrating Entity Framework Core with SQL Server for data persistence.
 */

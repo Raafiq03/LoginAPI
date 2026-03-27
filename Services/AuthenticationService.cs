@@ -1,6 +1,7 @@
 ﻿using LoginAPI.Models;
-using LoginAPI.Data;
 using BCrypt.Net;
+using LoginAPI.Entities;
+using LoginAPI.Utilities;
 
 
 namespace LoginAPI.Services
@@ -22,7 +23,8 @@ namespace LoginAPI.Services
                 Id = user.Count + 1,
                 Email = dto.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                Role = "User"
+                Role = "User",
+                Username = dto.Username
             };
             user.Add(newUser);
 
@@ -33,7 +35,7 @@ namespace LoginAPI.Services
         {
             var users = _repo.GetAllUsers();
 
-            var user = users.FirstOrDefault(u => u.Email == dto.Email);
+            var user = users.FirstOrDefault(u => u.Email == dto.Email || u.Username == dto.Username);
             if (user == null)
                 return null;
 
@@ -43,3 +45,7 @@ namespace LoginAPI.Services
         }
     }
 }
+
+
+
+

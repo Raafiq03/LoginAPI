@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
-using LoginAPI.Models;
+using LoginAPI.Entities;
 
-namespace LoginAPI.Data;
+namespace LoginAPI.Utilities;
 
 
 public class FileUserRepository

@@ -35,12 +35,22 @@ public class AuthController : ControllerBase
         return Ok(new { token });
     }
     [Authorize]
-    [HttpGet]
-    public IActionResult GetSecret()
+    [HttpGet("secret")]
+    public IActionResult GetSecret ()
     {
         return Ok("You accessed a protected route.");
     }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("admin")]
+    public IActionResult AdminOnlyEndpoint()
+    {
+        return Ok("You accessed an Admin protected route.");
+    }
+
 }
+
+
 
 
 
