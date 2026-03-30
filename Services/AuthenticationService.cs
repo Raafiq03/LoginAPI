@@ -1,45 +1,53 @@
 ﻿using LoginAPI.Models;
 using BCrypt.Net;
 using LoginAPI.Entities;
-using LoginAPI.Utilities;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace LoginAPI.Services
 {
     public class AuthenticationService
     {
-        private readonly FileUserRepository _repo;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
 
-        public AuthenticationService(FileUserRepository repo)
+        public AuthenticationService(UserManager<User> userManager, SignInManager<User> signInManager)
         {
-            _repo = repo;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
-        public void Register(RegisterDto dto)
+        public async Task<IActionResult> Register(RegisterDto dto)
         {
-            var user = _repo.GetAllUsers();
-            var newUser = new User
+            
+            var user = new User
             {
-                Id = user.Count + 1,
                 Email = dto.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                Role = "User",
-                Username = dto.Username
+                UserName = dto.Username,
+                Role = "User"
             };
-            user.Add(newUser);
+            var result = await _userManager.CreateAsync(user, dto.Password);
 
-            _repo.SaveUsers(user);
+            if (!result.Succeeded)
+            {
+                return new BadRequestObjectResult(result.Errors);
+            }
+            user.Role = "User";
+            await _userManager.UpdateAsync(user);
+
+            return new OkObjectResult("User registered successfully");
         }
 
-        public User ValidateCredentials(LoginDto dto)
+        public async Task<User> ValidateCredentials(LoginDto dto)
         {
-            var users = _repo.GetAllUsers();
+            var user = await _userManager.FindByEmailAsync(dto.Email);
 
-            var user = users.FirstOrDefault(u => u.Email == dto.Email || u.Username == dto.Username);
             if (user == null)
-                return null;
+                user = await _userManager.FindByNameAsync(dto.Username);
 
-            if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+            var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
+            if (!result.Succeeded)
                 return null;
             return user;
         }

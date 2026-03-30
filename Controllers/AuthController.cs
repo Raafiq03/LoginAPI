@@ -19,15 +19,15 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public IActionResult Register(RegisterDto dto)
+    public async Task<IActionResult> Register(RegisterDto dto)
     {
-        _authService.Register(dto);
-        return Ok(new { message = "User registered successfully" });
+        return await _authService.Register(dto);
+        
     }
     [HttpPost("login")]
-    public IActionResult Login(LoginDto dto)
+    public async Task<IActionResult> Login(LoginDto dto)
     {
-        var user = _authService.ValidateCredentials(dto);
+        var user = await _authService.ValidateCredentials(dto);
         if (user == null) return Unauthorized(new { message = "Invalid Credentials" });
 
         var token = _tokenService.GenerateToken(user);

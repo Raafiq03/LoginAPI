@@ -4,15 +4,15 @@ using System.Text;
 using LoginAPI.Services;
 using LoginAPI.Models;
 using Microsoft.OpenApi;
-using LoginAPI.Utilities;
 using LoginAPI.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using LoginAPI.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // comments at the bottom 
 builder.Services.AddControllers();
-builder.Services.AddScoped<FileUserRepository>();
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<TokenService>();
 
@@ -64,6 +64,10 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddIdentity<User, Roles>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
 var app = builder.Build();
 
